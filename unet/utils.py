@@ -43,6 +43,12 @@ class myDataset(Dataset):
         vhm = Image.open(vhm_name)
 
         rgb = torchvision.transforms.functional.pil_to_tensor(rgb)
+        rgb = rgb.float().div(256)
+
+        # This keeps only the first three channels (RGB),
+        # discarding the alpha channel... It works for TIFs.
+        rgb = rgb[:3]
+
         vhm = torchvision.transforms.functional.pil_to_tensor(vhm)
 
         sample = {'rgb': rgb, 'vhm': vhm}
