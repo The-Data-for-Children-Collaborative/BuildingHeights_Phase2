@@ -6,7 +6,7 @@ import net
 
 if __name__ == '__main__':
 
-    # Check for CUDA/MPS
+    # Check for MPS/CUDA
 
     if torch.backends.mps.is_available() == True:
         device = torch.device('mps')
