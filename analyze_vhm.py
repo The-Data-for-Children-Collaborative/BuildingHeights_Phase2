@@ -15,8 +15,16 @@
 # To call the function use;
 #python analyze_vhm.py /path/to/vhm/files/ /path/to/output/output.csv --threshold 0.5
 
+#  OUTPUT:
+# Each row in output.csv has the name of the file examined and has columns in the following order
+# mean_vegetation_height, median_vegetation_height, vegetation_fraction, vegetation_quantiles, vegetation_variance]
 
-#Typical path to triples is /work/unicef/valentina/triples
+#Example:
+#filename    mean_veg_height    median_veg_height    vegetation_ratio (%) building_ratio (%)    veg_quantiles    veg_variance
+#vhm_3326_421.tif    0.71013594    0.0    10.53645904320570    89.46354095679430    [4.30607903 6.38585639 8.80009174]    10.641622
+
+
+
 
 
 #!/usr/bin/env python3
@@ -37,36 +45,53 @@ args = parser.parse_args()
 # Open the CSV file to store the results
 csv_file = open(args.output, 'w', newline='')
 csv_writer = csv.writer(csv_file)
-csv_writer.writerow(['filename', 'mean_vegetation_height', 'median_vegetation_height', 'vegetation_fraction', 'vegetation_quantiles', 'vegetation_variance'])
+csv_writer.writerow(['filename', 'mean_veg_height', 'median_veg_height', 'vegetation_ratio (%)', 'building_ratio (%)', 'veg_quantiles', 'veg_variance'])
 
 # Loop through all the VHM files
 for file in os.scandir(args.path):
     if file.name.startswith('vhm') and file.name.endswith('.tif') and file.is_file():
+
         # Open the file
         dataset = gdal.Open(file.path)
+
+        # Print the name of the dataset
+        print(f"The file I am working with is: {file.name}")
 
         # Read the vegetation height data as a NumPy array
         vegetation_height = dataset.ReadAsArray()
 
-        # Calculate the mean vegetation height
-        mean_vegetation_height = np.mean(vegetation_height)
+        if vegetation_height is None:
+            print(f"Failed to read data from {file.name}")
 
-        # Calculate the median vegetation height
-        median_vegetation_height = np.median(vegetation_height)
+        else:
+             # Calculate the mean vegetation height
+            mean_vegetation_height = np.mean(vegetation_height)
 
-        # Calculate the fraction of pixels with vegetation above the threshold
-        vegetation_pixels = np.count_nonzero(vegetation_height > args.threshold)
-        total_pixels = vegetation_height.size
-        vegetation_fraction = vegetation_pixels / total_pixels
+            # Calculate the median vegetation height
+            median_vegetation_height = np.median(vegetation_height)
 
-        # Calculate the vegetation quantiles
-        vegetation_quantiles = np.quantile(vegetation_height[vegetation_height > args.threshold], [0.25, 0.5, 0.75])
+            # Calculate the fraction of pixels with vegetation above the threshold
+            vegetation_pixels = np.count_nonzero(vegetation_height > args.threshold)
+            total_pixels = vegetation_height.size
+            vegetation_fraction = vegetation_pixels / total_pixels*100
+            building_fraction = 100 - vegetation_fraction
 
-        # Calculate the vegetation variance
-        vegetation_variance = np.var(vegetation_height[vegetation_height > args.threshold])
+            # Calculate the vegetation quantiles
+            if np.count_nonzero(vegetation_height > args.threshold) > 0:
+                vegetation_quantiles = np.quantile(vegetation_height[vegetation_height > args.threshold], [0.25, 0.5, 0.75])
 
-        # Write the results to the CSV file
-        csv_writer.writerow([file.name, mean_vegetation_height, median_vegetation_height, vegetation_fraction, vegetation_quantiles, vegetation_variance])
+                # Calculate the vegetation variance
+                vegetation_variance = np.var(vegetation_height[vegetation_height > args.threshold])
+
+            else:
+                vegetation_quantiles = np.nan
+                vegetation_variance = np.nan
+
+            # Write the results to the CSV file
+            csv_writer.writerow([file.name, mean_vegetation_height, median_vegetation_height, vegetation_fraction, building_fraction, vegetation_quantiles, vegetation_variance])
+
+
+
 
         # Close the file
         dataset = None
