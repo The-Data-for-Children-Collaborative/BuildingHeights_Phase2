@@ -1,3 +1,3 @@
-# BuildingHeights_Phase2
+# Building Heights Phase 2
 
-Valentina: let me try this! 
+Code, scripts and notebooks for Phase 2 of the building height estimation project.
