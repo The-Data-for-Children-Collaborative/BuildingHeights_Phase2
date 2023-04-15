@@ -1,4 +1,4 @@
-#Downloading Sentinel data
+# Downloading Sentinel data
 ------------
 
 1. Set up a conda environment using the `envs/sentinel.yml` file as follows:
