@@ -1,0 +1,16 @@
+name: sentinel
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.9
+  - earthengine-api
+  - numpy
+  - pandas
+  - pyproj
+  - gdal
+  - rioxarray
+  - pip:
+    - opencv-python
+    - Pillow
+    - black
