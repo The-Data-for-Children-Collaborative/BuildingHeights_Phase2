@@ -29,7 +29,7 @@ class AverageMeter(object):
 class myDataset(Dataset):
 
     '''
-        Our loader
+        Our dataset object
     '''
 
     def __init__(self, csv_file):

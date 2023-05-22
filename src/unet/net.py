@@ -72,7 +72,9 @@ class unet(nn.Module):
         self.d3 = decoder_block(256, 128)
         self.d4 = decoder_block(128, 64)
 
-        # Final layer
+        # Final layers
+        self.refinement = nn.Conv2d(64, 64, kernel_size=3, padding=1)
+        self.sigmoid = nn.Sigmoid()
         self.outputs = nn.Conv2d(64, 1, kernel_size=1, padding=0)
 
     def forward(self, input):
@@ -93,6 +95,7 @@ class unet(nn.Module):
         d4 = self.d4(d3, s1)
 
         # Final layer
-        output = self.outputs(d4)
+        r1 = self.refinement(d4)
+        output = self.sigmoid(self.outputs(r1))
 
         return output

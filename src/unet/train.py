@@ -14,9 +14,6 @@ def do_training_epoch(train_loader, vegetation_threshold, losses, end):
         
             rgb, vhm = sample_batched['rgb'], sample_batched['vhm']
 
-            print('Loaded a RGB batch, with size: {0}'.format(rgb.size()))
-            print('Loaded a VHM batch, with size: {0}'.format(vhm.size()))
-
             # The images in each training pair are resized to 256 x 256
 
             rgb = torch.nn.functional.interpolate(rgb, size=(256, 256), mode='bilinear')
@@ -35,10 +32,6 @@ def do_training_epoch(train_loader, vegetation_threshold, losses, end):
 
             # The model is evaluated on the current sample
             output = model(rgb)
-
-            # Some optional debug information after evaluating the model
-            print('Size of input: {}'.format(rgb.size()))
-            print('Size of output: {}'.format(output.size()))
 
             # We calculate the loss and update the loss counter
             loss = torch.log(torch.abs(output - vhm) + 0.5).mean()
@@ -67,7 +60,6 @@ def loss_on_test_set(test_loader, vegetation_threshold):
         Given a (trained or partially trained) model, evaluates the loss on the training set.
 
         Arguments: test_loader, a torch.utils.data.DataLoader object helping us to load the test pairs
-                   vegetation_threshold
     '''
 
     total_loss = 0
@@ -116,8 +108,8 @@ if __name__ == '__main__':
     print('Device: {}'.format(device))
 
     # Various configuration options
-    nr_epochs = 10
-    vegetation_threshold = 10
+    nr_epochs = 30
+    vegetation_threshold = 6
     csv_train_file = 'train.csv'
     csv_test_file = 'test.csv'
     snapshot_path = 'snapshot_'
@@ -143,11 +135,11 @@ if __name__ == '__main__':
     # Enables the cuDNN autotuner
     cudnn.benchmark = True
 
-    # Selects the Adam optimizer, with parameters as specified on the command line
+    # Selects the Adam optimizer, with parameters as specified
     optimizer = torch.optim.Adam(model.parameters(), initial_lr, weight_decay=weight_decay)
 
     # Iterate over all epocs
-    for epoch in range(1, nr_epochs):
+    for epoch in range(1, nr_epochs + 1):
 
         batch_time = utils.AverageMeter()
         losses = utils.AverageMeter()
@@ -166,7 +158,7 @@ if __name__ == '__main__':
         end = time.time()
 
         do_training_epoch(train_loader, vegetation_threshold, losses, end)
-        
+
         # At the end of each epoch we save the trained weights
         out_name = snapshot_path + str(epoch) + '.pth.tar'
         state = {'state_dict': model.state_dict()}
@@ -177,4 +169,4 @@ if __name__ == '__main__':
         print('Average loss on training set at epoch {}: {}'.format(epoch, losses.avg))
 
         lots = loss_on_test_set(test_loader, vegetation_threshold)
-        print('Loss on test set at epoch {}: {}'.format(epoch, lots))
+        print('Average loss on test set at epoch {}: {}'.format(epoch, lots))
