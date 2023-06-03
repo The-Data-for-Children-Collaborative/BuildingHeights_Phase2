@@ -94,10 +94,10 @@ generate_summary_file(clustered_data, cluster_labels, output_dir)   ### added ou
 #print("I am done with 9!")
 
 ## 11. Visualization
-plt.scatter(selected_data["mean_veg_height"], selected_data["vegetation_ratio (%)"], c=cluster_labels)
-plt.xlabel("Mean vegetation height")
-plt.ylabel("Vegetation ratio")
-plt.show()
-print('Everything OK with 11.!')
+#plt.scatter(selected_data["mean_veg_height"], selected_data["vegetation_ratio (%)"], c=cluster_labels)
+#plt.xlabel("Mean vegetation height")
+#plt.ylabel("Vegetation ratio")
+#plt.show()
+#print('Everything OK with 11.!')
 
 print('Done! If you uncommment 11. you can also visualize the clusters ')
